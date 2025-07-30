@@ -102,7 +102,9 @@ async def create_sample_projects():
         ]
         
         for project_data in sample_projects:
-            project = Project(**project_data.dict(), bg_color="#2a2a2a")
+            project_dict = project_data.dict()
+            project_dict["bg_color"] = "#2a2a2a"
+            project = Project(**project_dict)
             await db.projects.insert_one(project.dict())
         
         print("✅ Sample projects created")
