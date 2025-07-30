@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Plus, Edit, Trash2, Eye, EyeOff, Save, X, LogOut } from 'lucide-react';
-import { portfolioData, adminCredentials } from '../mock';
+import { projectsAPI } from '../api';
 
 const AdminPanel = ({ onLogout }) => {
-  const [projects, setProjects] = useState(portfolioData.projects);
+  const [projects, setProjects] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [isAddingProject, setIsAddingProject] = useState(false);
   const [editingProject, setEditingProject] = useState(null);
+  const [submitting, setSubmitting] = useState(false);
   const [newProject, setNewProject] = useState({
     title: '',
     description: '',
@@ -18,26 +20,53 @@ const AdminPanel = ({ onLogout }) => {
     featured: false
   });
 
-  const handleAddProject = () => {
-    const project = {
-      ...newProject,
-      id: Date.now(),
-      technologies: newProject.technologies.split(',').map(t => t.trim()),
-      bgColor: `#${Math.floor(Math.random()*16777215).toString(16)}`
-    };
-    
-    setProjects([...projects, project]);
-    setNewProject({
-      title: '',
-      description: '',
-      category: 'نظام ويب',
-      technologies: '',
-      image: '',
-      demoLink: '',
-      githubLink: '',
-      featured: false
-    });
-    setIsAddingProject(false);
+  // Fetch projects from API
+  useEffect(() => {
+    fetchProjects();
+  }, []);
+
+  const fetchProjects = async () => {
+    try {
+      setLoading(true);
+      const data = await projectsAPI.admin.getAll();
+      setProjects(data);
+    } catch (error) {
+      console.error('Error fetching projects:', error);
+      alert('فشل في تحميل المشاريع');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleAddProject = async () => {
+    try {
+      setSubmitting(true);
+      const projectData = {
+        ...newProject,
+        technologies: newProject.technologies.split(',').map(t => t.trim()).filter(t => t)
+      };
+      
+      const newProjectData = await projectsAPI.admin.create(projectData);
+      setProjects([newProjectData, ...projects]);
+      
+      // Reset form
+      setNewProject({
+        title: '',
+        description: '',
+        category: 'نظام ويب',
+        technologies: '',
+        image: '',
+        demoLink: '',
+        githubLink: '',
+        featured: false
+      });
+      setIsAddingProject(false);
+    } catch (error) {
+      console.error('Error creating project:', error);
+      alert('فشل في إضافة المشروع');
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   const handleEditProject = (project) => {
@@ -48,37 +77,59 @@ const AdminPanel = ({ onLogout }) => {
     });
   };
 
-  const handleUpdateProject = () => {
-    const updatedProject = {
-      ...newProject,
-      id: editingProject,
-      technologies: newProject.technologies.split(',').map(t => t.trim())
-    };
-    
-    setProjects(projects.map(p => p.id === editingProject ? updatedProject : p));
-    setEditingProject(null);
-    setNewProject({
-      title: '',
-      description: '',
-      category: 'نظام ويب',
-      technologies: '',
-      image: '',
-      demoLink: '',
-      githubLink: '',
-      featured: false
-    });
-  };
-
-  const handleDeleteProject = (id) => {
-    if (window.confirm('هل أنت متأكد من حذف هذا المشروع؟')) {
-      setProjects(projects.filter(p => p.id !== id));
+  const handleUpdateProject = async () => {
+    try {
+      setSubmitting(true);
+      const projectData = {
+        ...newProject,
+        technologies: newProject.technologies.split(',').map(t => t.trim()).filter(t => t)
+      };
+      
+      const updatedProject = await projectsAPI.admin.update(editingProject, projectData);
+      setProjects(projects.map(p => p.id === editingProject ? updatedProject : p));
+      
+      // Reset form
+      setEditingProject(null);
+      setNewProject({
+        title: '',
+        description: '',
+        category: 'نظام ويب',
+        technologies: '',
+        image: '',
+        demoLink: '',
+        githubLink: '',
+        featured: false
+      });
+    } catch (error) {
+      console.error('Error updating project:', error);
+      alert('فشل في تحديث المشروع');
+    } finally {
+      setSubmitting(false);
     }
   };
 
-  const toggleFeatured = (id) => {
-    setProjects(projects.map(p => 
-      p.id === id ? { ...p, featured: !p.featured } : p
-    ));
+  const handleDeleteProject = async (id) => {
+    if (window.confirm('هل أنت متأكد من حذف هذا المشروع؟')) {
+      try {
+        await projectsAPI.admin.delete(id);
+        setProjects(projects.filter(p => p.id !== id));
+      } catch (error) {
+        console.error('Error deleting project:', error);
+        alert('فشل في حذف المشروع');
+      }
+    }
+  };
+
+  const toggleFeatured = async (project) => {
+    try {
+      const updatedProject = await projectsAPI.admin.update(project.id, {
+        featured: !project.featured
+      });
+      setProjects(projects.map(p => p.id === project.id ? updatedProject : p));
+    } catch (error) {
+      console.error('Error updating project:', error);
+      alert('فشل في تحديث المشروع');
+    }
   };
 
   return (
