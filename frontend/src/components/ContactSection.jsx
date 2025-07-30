@@ -219,6 +219,17 @@ const ContactSection = () => {
                   تم إرسال رسالتك بنجاح! سأقوم بالرد عليك قريباً.
                 </motion.div>
               )}
+
+              {/* Error Message */}
+              {error && (
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="mt-4 p-4 bg-red-500/20 border border-red-500/50 rounded-lg text-red-400 text-center"
+                >
+                  {error}
+                </motion.div>
+              )}
             </div>
           </motion.div>
         </div>
