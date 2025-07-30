@@ -230,6 +230,32 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
+@app.on_event("startup")
+async def startup_event():
+    """Initialize database on startup"""
+    await create_default_admin()
+    await create_sample_projects()
+    logger.info("🚀 Sabrah Soft Portfolio API started successfully!")
+
+@app.on_event("shutdown")
+async def shutdown_db_client():
+    client.close()
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_credentials=True,
+    allow_origins=["*"],
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
+
 @app.on_event("shutdown")
 async def shutdown_db_client():
     client.close()
