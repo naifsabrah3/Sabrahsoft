@@ -362,10 +362,21 @@ const AdminPanel = ({ onLogout }) => {
                       whileHover={{ scale: 1.05 }}
                       whileTap={{ scale: 0.95 }}
                       onClick={editingProject ? handleUpdateProject : handleAddProject}
-                      className="bg-white text-black px-6 py-2 rounded-lg font-semibold hover:bg-gray-200 transition-colors flex items-center space-x-2 space-x-reverse"
+                      disabled={submitting}
+                      className="bg-white text-black px-6 py-2 rounded-lg font-semibold hover:bg-gray-200 transition-colors flex items-center space-x-2 space-x-reverse disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                      <Save size={18} />
-                      <span>{editingProject ? 'تحديث' : 'حفظ'}</span>
+                      {submitting ? (
+                        <motion.div
+                          animate={{ rotate: 360 }}
+                          transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                          className="w-4 h-4 border-2 border-black border-t-transparent rounded-full"
+                        />
+                      ) : (
+                        <>
+                          <Save size={18} />
+                          <span>{editingProject ? 'تحديث' : 'حفظ'}</span>
+                        </>
+                      )}
                     </motion.button>
                   </div>
                 </div>
