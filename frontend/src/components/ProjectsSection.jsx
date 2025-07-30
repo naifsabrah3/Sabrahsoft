@@ -244,7 +244,7 @@ const ProjectsSection = () => {
               </motion.div>
             </motion.div>
           )}
-        </animatepresence>
+        </AnimatePresence>
       </div>
     </section>
   );
