@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Mail, Phone, MapPin, Send, Github, Linkedin, Twitter } from 'lucide-react';
 import { portfolioData } from '../mock';
+import { contactAPI } from '../api';
 
 const ContactSection = () => {
   const [formData, setFormData] = useState({
@@ -11,6 +12,7 @@ const ContactSection = () => {
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [error, setError] = useState('');
 
   const handleInputChange = (e) => {
     setFormData({
@@ -22,15 +24,20 @@ const ContactSection = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
+    setError('');
     
-    // Simulate form submission
-    setTimeout(() => {
-      setIsSubmitting(false);
+    try {
+      const response = await contactAPI.send(formData);
       setSubmitted(true);
       setFormData({ name: '', email: '', message: '' });
       
-      setTimeout(() => setSubmitted(false), 3000);
-    }, 1000);
+      setTimeout(() => setSubmitted(false), 5000);
+    } catch (err) {
+      console.error('Contact form error:', err);
+      setError('فشل في إرسال الرسالة. حاول مرة أخرى.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const contactInfo = [
