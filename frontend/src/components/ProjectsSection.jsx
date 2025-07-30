@@ -1,17 +1,38 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ExternalLink, Github, Filter } from 'lucide-react';
-import { portfolioData } from '../mock';
+import { projectsAPI } from '../api';
 
 const ProjectsSection = () => {
   const [filter, setFilter] = useState('الكل');
   const [selectedProject, setSelectedProject] = useState(null);
+  const [projects, setProjects] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   const categories = ['الكل', 'نظام ويب', 'تطبيق أندرويد'];
+
+  // Fetch projects from API
+  useEffect(() => {
+    const fetchProjects = async () => {
+      try {
+        setLoading(true);
+        const data = await projectsAPI.getAll();
+        setProjects(data);
+      } catch (err) {
+        console.error('Error fetching projects:', err);
+        setError('فشل في تحميل المشاريع');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProjects();
+  }, []);
   
   const filteredProjects = filter === 'الكل' 
-    ? portfolioData.projects 
-    : portfolioData.projects.filter(project => project.category === filter);
+    ? projects 
+    : projects.filter(project => project.category === filter);
 
   const containerVariants = {
     hidden: { opacity: 0 },
