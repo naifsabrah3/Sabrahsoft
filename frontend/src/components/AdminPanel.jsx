@@ -165,53 +165,63 @@ const AdminPanel = ({ onLogout }) => {
         </motion.button>
 
         {/* Projects Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {projects.map((project) => (
+        {loading ? (
+          <div className="flex justify-center items-center py-20">
             <motion.div
-              key={project.id}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="bg-black/40 rounded-lg border border-white/10 overflow-hidden"
-            >
-              <div className="p-6">
-                <div className="flex justify-between items-start mb-4">
-                  <h3 className="text-lg font-bold truncate">{project.title}</h3>
-                  <div className="flex space-x-2 space-x-reverse">
-                    <button
-                      onClick={() => toggleFeatured(project.id)}
-                      className={`p-1 rounded ${project.featured ? 'text-yellow-400' : 'text-gray-400'}`}
-                    >
-                      {project.featured ? <Eye size={16} /> : <EyeOff size={16} />}
-                    </button>
-                    <button
-                      onClick={() => handleEditProject(project)}
-                      className="text-blue-400 hover:text-blue-300 p-1"
-                    >
-                      <Edit size={16} />
-                    </button>
-                    <button
-                      onClick={() => handleDeleteProject(project.id)}
-                      className="text-red-400 hover:text-red-300 p-1"
-                    >
-                      <Trash2 size={16} />
-                    </button>
+              animate={{ rotate: 360 }}
+              transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+              className="w-12 h-12 border-4 border-white/20 border-t-white rounded-full"
+            />
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {projects.map((project) => (
+              <motion.div
+                key={project.id}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="bg-black/40 rounded-lg border border-white/10 overflow-hidden"
+              >
+                <div className="p-6">
+                  <div className="flex justify-between items-start mb-4">
+                    <h3 className="text-lg font-bold truncate">{project.title}</h3>
+                    <div className="flex space-x-2 space-x-reverse">
+                      <button
+                        onClick={() => toggleFeatured(project)}
+                        className={`p-1 rounded ${project.featured ? 'text-yellow-400' : 'text-gray-400'}`}
+                      >
+                        {project.featured ? <Eye size={16} /> : <EyeOff size={16} />}
+                      </button>
+                      <button
+                        onClick={() => handleEditProject(project)}
+                        className="text-blue-400 hover:text-blue-300 p-1"
+                      >
+                        <Edit size={16} />
+                      </button>
+                      <button
+                        onClick={() => handleDeleteProject(project.id)}
+                        className="text-red-400 hover:text-red-300 p-1"
+                      >
+                        <Trash2 size={16} />
+                      </button>
+                    </div>
+                  </div>
+                  
+                  <p className="text-gray-400 text-sm mb-3 line-clamp-2">{project.description}</p>
+                  <span className="inline-block bg-white/10 px-2 py-1 rounded text-xs">{project.category}</span>
+                  
+                  <div className="mt-3 flex flex-wrap gap-1">
+                    {project.technologies.slice(0, 3).map((tech) => (
+                      <span key={tech} className="bg-gray-700 px-2 py-1 rounded text-xs">
+                        {tech}
+                      </span>
+                    ))}
                   </div>
                 </div>
-                
-                <p className="text-gray-400 text-sm mb-3 line-clamp-2">{project.description}</p>
-                <span className="inline-block bg-white/10 px-2 py-1 rounded text-xs">{project.category}</span>
-                
-                <div className="mt-3 flex flex-wrap gap-1">
-                  {project.technologies.slice(0, 3).map((tech) => (
-                    <span key={tech} className="bg-gray-700 px-2 py-1 rounded text-xs">
-                      {tech}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            </motion.div>
-          ))}
-        </div>
+              </motion.div>
+            ))}
+          </div>
+        )}
 
         {/* Add/Edit Project Modal */}
         <AnimatePresence>
