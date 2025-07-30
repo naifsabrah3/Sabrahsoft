@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Lock, User, Eye, EyeOff } from 'lucide-react';
-import { adminCredentials } from '../mock';
+import { adminAPI } from '../api';
 
 const LoginForm = ({ onLogin }) => {
   const [credentials, setCredentials] = useState({
@@ -17,16 +17,20 @@ const LoginForm = ({ onLogin }) => {
     setIsLoading(true);
     setError('');
 
-    // Simulate login delay
-    setTimeout(() => {
-      if (credentials.username === adminCredentials.username && 
-          credentials.password === adminCredentials.password) {
-        onLogin();
-      } else {
-        setError('اسم المستخدم أو كلمة المرور غير صحيحة');
-      }
+    try {
+      const response = await adminAPI.login(credentials);
+      
+      // Store token in localStorage
+      localStorage.setItem('admin_token', response.access_token);
+      
+      // Call onLogin callback
+      onLogin();
+    } catch (error) {
+      console.error('Login error:', error);
+      setError(error.response?.data?.detail || 'فشل في تسجيل الدخول');
+    } finally {
       setIsLoading(false);
-    }, 1000);
+    }
   };
 
   const handleInputChange = (e) => {
